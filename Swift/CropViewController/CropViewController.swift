@@ -97,7 +97,7 @@ public class CropViewController: UIViewController, TOCropViewControllerDelegate 
      The view controller's delegate that will receive the resulting
      cropped image, as well as crop information.
     */
-    public var delegate: CropViewControllerDelegate? {
+    public weak var delegate: CropViewControllerDelegate? {
         didSet { self.setUpDelegateHandlers() }
     }
     
@@ -540,26 +540,30 @@ extension CropViewController {
         }
         
         if delegate.responds(to: #selector(CropViewControllerDelegate.cropViewController(_:didCropImageToRect:angle:))) {
-            self.onDidCropImageToRect = {rect, angle in
-                delegate.cropViewController!(self, didCropImageToRect: rect, angle: angle)
+            self.onDidCropImageToRect = { [weak self] rect, angle in
+                guard let strongSelf = self else { return }
+                delegate.cropViewController!(strongSelf, didCropImageToRect: rect, angle: angle)
             }
         }
         
         if delegate.responds(to: #selector(CropViewControllerDelegate.cropViewController(_:didCropToImage:withRect:angle:))) {
-            self.onDidCropToRect = {image, rect, angle in
-                delegate.cropViewController!(self, didCropToImage: image, withRect: rect, angle: angle)
+            self.onDidCropToRect = { [weak self]  image, rect, angle in
+                guard let strongSelf = self else { return }
+                delegate.cropViewController!(strongSelf, didCropToImage: image, withRect: rect, angle: angle)
             }
         }
         
         if delegate.responds(to: #selector(CropViewControllerDelegate.cropViewController(_:didCropToCircularImage:withRect:angle:))) {
-            self.onDidCropToCircleImage = {image, rect, angle in
-                delegate.cropViewController!(self, didCropToCircularImage: image, withRect: rect, angle: angle)
+            self.onDidCropToCircleImage = { [weak self]  image, rect, angle in
+                guard let strongSelf = self else { return }
+                delegate.cropViewController!(strongSelf, didCropToCircularImage: image, withRect: rect, angle: angle)
             }
         }
         
         if delegate.responds(to: #selector(CropViewControllerDelegate.cropViewController(_:didFinishCancelled:))) {
-            self.onDidFinishCancelled = { finished in
-                delegate.cropViewController!(self, didFinishCancelled: finished)
+            self.onDidFinishCancelled = { [weak self]  finished in
+                guard let strongSelf = self else { return }
+                delegate.cropViewController!(strongSelf, didFinishCancelled: finished)
             }
         }
     }
